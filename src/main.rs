@@ -1,7 +1,8 @@
 use std::fs::File;
 use std::io::{self, Read, Seek, SeekFrom};
+use std::path::Path;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 enum ErrorType {
     None,
     Arguments,
@@ -36,7 +37,7 @@ fn file_size(file: &mut File) -> io::Result<u64> {
     Ok(size)
 }
 
-fn file_contents(path: &str) -> io::Result<String> {
+fn file_contents(path: &Path) -> io::Result<String> {
     let mut file = File::open(path)?;
     let size = file_size(&mut file)?;
     let mut contents = String::with_capacity(size as usize);
@@ -257,7 +258,7 @@ fn main() {
         return;
     }
 
-    let path = &args[1];
+    let path = Path::new(&args[1]);
     match file_contents(path) {
         Ok(contents) => {
             let mut expression = Node::new(NodeType::Program);
@@ -269,7 +270,7 @@ fn main() {
             print_error(&err);
         }
         Err(err) => {
-            eprintln!("Could not open file at {}: {}", path, err);
+            eprintln!("Could not open file at {}: {}", path.display(), err);
         }
     }
 }
