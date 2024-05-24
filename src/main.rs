@@ -1,6 +1,5 @@
 use std::fs::File;
 use std::io::{self, Read, Seek, SeekFrom};
-use std::ffi::CString;
 
 #[derive(Debug, Clone)]
 enum ErrorType {
@@ -187,10 +186,9 @@ fn parse_integer(token: &Token, node: &mut Node) -> bool {
     }
 }
 
-fn parse_expr(source: &str, end: &mut &str, result: &mut Node) -> Error {
+fn parse_expr<'a>(source: &'a str, end: &mut &'a str, result: &mut Node) -> Error {
     let mut current_token = Token::new();
-    let mut token_count = 0;
-    let mut err = OK.clone();
+    let err = OK.clone();
 
     while lex(source, &mut current_token).is_ok() {
         *end = current_token.end;
@@ -199,7 +197,6 @@ fn parse_expr(source: &str, end: &mut &str, result: &mut Node) -> Error {
             break;
         }
         if parse_integer(&current_token, result) {
-            let lhs_integer = result.clone();
             if lex(current_token.end, &mut current_token).is_err() {
                 return err;
             }
